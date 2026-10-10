@@ -1,0 +1,26 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.db
+*.sqlite
+*.sqlite3
+.env
+*.log
+.pytest_cache/
+.streamlit/secrets.toml
+ml_training/data/*.csv
+ml_training/models/*.pkl
+ml_training/models/*.joblib
+ml_training/models/*.txt
+ml_training/models/*.json
+ml_training/evaluation/*.png
+ml_training/evaluation/*holdout.csv
+ml_training/.mplconfig/
+uploads/*
+results/*
+data/*
+model/*
+
+# Presentation build scratch
+.codex/

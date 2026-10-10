@@ -1,0 +1,17 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
+pydantic==2.9.2
+pydantic-settings==2.5.2
+sqlalchemy==2.0.35
+lightgbm==4.5.0
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+joblib==1.4.2
+shap==0.46.0
+lief==0.15.1
+pefile==2024.8.26
+yara-python==4.5.1
+python-dotenv==1.0.1
+psycopg[binary]==3.2.3

@@ -1,0 +1,1 @@
+"""IntelliStatic Streamlit dashboard."""
