@@ -21,8 +21,9 @@ class Settings(BaseSettings):
     max_upload_mb: int = Field(default=100, ge=1)
     allowed_extensions: str = ".exe,.dll,.sys,.bin"
     yara_rules_dir: Path = PROJECT_ROOT / "yara_rules"
-    cors_origins: str = "http://localhost:8501,http://localhost:3000"
+    cors_origins: str = "http://localhost:8501,http://127.0.0.1:8501,http://localhost:3000,http://127.0.0.1:3000"
     api_key: str | None = None
+    rate_limit_per_minute: int = Field(default=30, ge=0)
     shap_enabled: bool = True
 
     model_config = SettingsConfigDict(

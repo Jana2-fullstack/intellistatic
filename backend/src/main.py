@@ -1,5 +1,7 @@
 import hmac
 import logging
+import time
+from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
@@ -52,6 +54,44 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Content-Type", "X-API-Key"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault("Cache-Control", "no-store")
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'none'; frame-ancestors 'none'; sandbox",
+    )
+    return response
+
+
+RATE_LIMIT_PATHS = ("/api/v1/analyze",)
+_request_times: dict[str, deque[float]] = defaultdict(deque)
+
+
+@app.middleware("http")
+async def rate_limit(request: Request, call_next):
+    limit = settings.rate_limit_per_minute
+    if limit > 0 and request.method == "POST" and request.url.path.startswith(RATE_LIMIT_PATHS):
+        client = request.client.host if request.client else "unknown"
+        now = time.monotonic()
+        window = _request_times[client]
+        while window and now - window[0] >= 60:
+            window.popleft()
+        if len(window) >= limit:
+            response = JSONResponse(
+                status_code=429,
+                content={"detail": "Too many analysis requests. Please wait a minute and try again."},
+            )
+            response.headers["Retry-After"] = str(max(1, int(60 - (now - window[0]))))
+            return response
+        window.append(now)
+    return await call_next(request)
 
 
 async def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
